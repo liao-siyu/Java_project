@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>股票模擬器 - 帳戶概覽 | StockMatch 投資媒合平台</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+	<!-- 導覽列 -->
+	<header class="bg-white shadow" x-data="{ open: false }">
+		<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+			<a href="index.html" class="text-2xl font-bold text-blue-700">StockMatch</a>
+			<nav class="hidden md:flex space-x-4">
+				<a href="index.html" class="text-gray-700 hover:text-blue-600">首頁</a>
+				<a href="about.html" class="text-gray-700 hover:text-blue-600">關於我們</a>
+				<a href="analyst-list.html" class="text-gray-700 hover:text-blue-600">找分析師</a>
+				<a href="#" class="text-gray-700 hover:text-blue-600">免費試閱</a>
+				<span class="text-blue-700 font-semibold">模擬交易</span>
+				<a href="#" class="text-gray-700 hover:text-blue-600">購物車</a>
+				<a href="login.html" class="text-gray-700 hover:text-blue-600">登入 / 註冊</a>
+			</nav>
+			<button @click="open = !open" class="md:hidden text-gray-600 focus:outline-none">
+				<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+				</svg>
+			</button>
+		</div>
+		<div x-show="open" class="md:hidden px-4 pb-4 space-y-2">
+			<a href="index.html" class="block text-gray-700 hover:text-blue-600">首頁</a>
+			<a href="about.html" class="block text-gray-700 hover:text-blue-600">關於我們</a>
+			<a href="#" class="block text-gray-700 hover:text-blue-600">找分析師</a>
+			<a href="#" class="block text-gray-700 hover:text-blue-600">免費試閱</a>
+			<span class="block text-blue-700 font-semibold">模擬交易</span>
+			<a href="#" class="block text-gray-700 hover:text-blue-600">我的訂閱</a>
+			<a href="#" class="block text-gray-700 hover:text-blue-600">購物車</a>
+			<a href="login.html" class="block text-gray-700 hover:text-blue-600">登入 / 註冊</a>
+		</div>
+	</header>
+
+	<!-- 模擬器主介面 -->
+	<main class="max-w-6xl mx-auto px-4 py-10">
+		<!-- 第一層主選單 -->
+		<div class="flex gap-4 mb-6">
+			<button id="btn-overview"
+				class="nav-button bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-200 font-semibold"
+				onclick="showIdSection('overview')">我的帳戶</button>
+			<button id="btn-trade"
+				class="nav-button bg-blue-100 text-blue-700 font-semibold px-4 py-2 rounded hover:bg-blue-200"
+				onclick="showIdSection('trade')">進行交易</button>
+			<button id="btn-watchlist"
+				class="nav-button bg-blue-100 text-blue-700 font-semibold px-4 py-2 rounded hover:bg-blue-200"
+				onclick="showIdSection('watchlist');showWatchlist()">觀察列表</button>
+			<button id="btn-market"
+				class="nav-button bg-blue-100 text-blue-700 font-semibold px-4 py-2 rounded hover:bg-blue-200"
+				onclick="showIdSection('market')">個股行情</button>
+		</div>
+
+		<!-- 我的帳戶主內容 -->
+		<section id="overview" class="bg-white p-6 rounded-2xl shadow-md mb-8">
+			<!-- 第二層子選單 -->
+			<div id="sub-menu" class="mb-4">
+				<div class="flex flex-wrap gap-4 mb-4">
+					<button id="btn-overview-content" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-600"
+						onclick="showTab('overview-content', '帳戶概覽')">帳戶概覽</button>
+					<button id="btn-profit" class="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200"
+						onclick="showTab('profit', '損益資訊')">查看損益</button>
+				</div>
+			</div>
+
+			<h2 class="text-xl font-semibold text-blue-700 mb-4" id="section-title">帳戶概覽</h2>
+			<!-- Java 連接 accounts 資料表 -->
+			<div id="overview-content">
+				<p>帳戶名稱：<span id="account-name" class="font-medium text-gray-800">(載入中)</span></p>
+				<p>現金資產：<span id="account-cash" class="font-medium text-gray-800">(載入中)</span></p>
+				<p>證券資產：<span id="account-stock" class="font-medium text-gray-800">(載入中)</span></p>
+				<p>凈資產：<span id="account-total" class="font-medium text-gray-800">(載入中)</span></p>
+
+				<button class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+					onclick="confirmReset()">重置帳戶</button>
+			</div>
+			<!-- Java 從 orders 取資料 -->
+			<div id="records" class="hidden">
+				<table class="w-full border text-sm">
+					<thead>
+						<tr class="bg-gray-100">
+							<th class="p-2">時間</th>
+							<th>股票代碼</th>
+							<th>類型</th>
+							<th>數量</th>
+							<th>價格</th>
+							<th>狀態</th>
+						</tr>
+					</thead>
+					<tbody id="record-table">
+						<tr>
+							<td colspan="6" class="text-center py-4">載入中...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- Java 抓 未實現損益 positions + stocks.current_price (庫存明細)-->
+			<!-- Java 抓 已實現損益 order.filled -->
+			<div id="profit" class="hidden">
+				<div class="mb-4">
+					<label class="mr-2 font-medium">選擇損益類別：</label>
+					<select id="profitType" class="border px-2 py-1 rounded" onchange="toggleProfitView()">
+						<option value="realized">已實現損益</option>
+						<option value="unrealized">未實現損益</option>
+					</select>
+				</div>
+				<div id="realized-profit" class="hidden">
+					<!-- 內容將由 renderRealizedProfit() 動態生成 -->
+				</div>
+
+				<!-- 未實現損益區域 (保留表格結構但清空tbody) -->
+				<div id="unrealized-profit" class="hidden">
+					<p class="text-gray-700 mb-2">庫存明細</p>
+					<table class="w-full border text-sm mb-4">
+						<thead>
+							<tr class="bg-gray-100">
+								<th class="p-2">股票代碼</th>
+								<th>數量</th>
+								<th>平均成本</th>
+								<th>現價</th>
+								<th>未實現損益</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody id="positions-body">
+							<!-- 內容將由 renderUnrealizedProfit() 動態填充 -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+			</div>
+		</section>
+
+		<!-- 交易主內容區塊 -->
+		<section id="trade" class="hidden bg-white p-6 rounded-2xl shadow-md mb-8">
+			<h2 class="text-xl font-semibold text-blue-700 mb-4">進行交易</h2>
+			<form id="trade-form" onsubmit="event.preventDefault(); submitOrder()">
+				<div class="mb-4">
+					<label class="block font-medium mb-1">股票名稱/代碼</label>
+					<input type="text" class="w-full border px-3 py-2 rounded" required />
+				</div>
+				<div class="mb-4">
+					<label class="block font-medium mb-1">交易類型</label>
+					<select class="w-full border px-3 py-2 rounded" required>
+						<option value="buy">買進</option>
+						<option value="sell">賣出</option>
+					</select>
+				</div>
+				<div class="mb-4">
+					<label class="block font-medium mb-1">股數</label>
+					<input id="order-quantity" type="number" id="order-quantity" class="w-full border px-3 py-2 rounded" required />
+				</div>
+				<div class="mb-4">
+					<label class="block font-medium mb-1">價格</label>
+					<input id="order-price" type="number" id="order-price" class="w-full border px-3 py-2 rounded" required />
+				</div>
+				<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">送出委託</button>
+			</form>
+			<div id="order-status" class="hidden mt-6">
+				<!-- Java 查詢訂單狀態 -->
+				<h3 class="text-lg font-semibold mb-4">委託狀態</h3>
+				<table class="w-full border text-sm mb-4">
+					<thead>
+						<tr class="bg-gray-100">
+							<th class="p-2">股票名稱/代碼</th>
+							<th>類型</th>
+							<th>數量</th>
+							<th>價格</th>
+							<th>下單時間</th>
+							<th>訂單狀態</th>
+							<th>訂單成立時間</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="order-list">
+						<tr>
+							<td>2330</td>
+							<td>買進</td>
+							<td>100</td>
+							<td>600</td>
+							<td>2025-07-11 14:35</td>
+							<td class="text-yellow-600 font-semibold">委託中</td>
+							<td>-</td>
+							<td>
+								<button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+									onclick="cancelOrder()">刪單</button>
+							</td>
+						</tr>
+						<!-- 可由 JS 動態加入更多筆委託 -->
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<!-- 觀察與行情獨立區塊 -->
+		<!-- Java 從 watchlists + stocks 結合查詢 -->
+		<section id="watchlist" class="hidden bg-white p-6 rounded-2xl shadow-md mb-8">
+			<h2 class="text-xl font-semibold text-blue-700 mb-4">觀察列表</h2>
+			<ul id="watchlist-items" class="space-y-2">
+				<!-- 股票代碼列表會由 JavaScript 動態插入 -->
+			</ul>
+		</section>
+
+		<section id="market" class="hidden bg-white p-6 rounded-2xl shadow-md mb-8">
+			<h2 class="text-xl font-semibold text-blue-700 mb-4">個股行情</h2>
+
+			<!-- 第二層子選單 -->
+			<div class="mb-4 flex gap-4">
+				<button id="btn-realtime" class="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200"
+					onclick="showMarketTab('realtime')">即時資訊</button>
+				<button id="btn-historical" class="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200"
+					onclick="showMarketTab('historical')">歷史資訊</button>
+			</div>
+
+			<!-- 即時資訊區塊 -->
+			<div id="market-realtime">
+				<form onsubmit="event.preventDefault(); showMarketInfo('realtime')">
+					<div class="mb-4">
+						<label class="block mb-1 font-medium">輸入股票代碼或名稱：</label>
+						<input type="text" class="w-full border px-3 py-2 rounded" required />
+					</div>
+					<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+						查詢
+					</button>
+				</form>
+			</div>
+
+			<!-- 歷史資訊區塊 -->
+			<div id="market-historical" class="hidden">
+				<form onsubmit="event.preventDefault(); showMarketInfo('historical')">
+					<div class="mb-4">
+						<label class="block mb-1 font-medium">輸入股票代碼或名稱：</label>
+						<input type="text" class="w-full border px-3 py-2 rounded" required />
+					</div>
+					<div class="mb-4">
+						<label class="block mb-1 font-medium">查詢日期：</label>
+						<input id="queryDate" type="date" class="w-full border px-3 py-2 rounded" required />
+					</div>
+					<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+						查詢
+					</button>
+				</form>
+			</div>
+
+			<!-- 查詢結果 -->
+			<div id="marketResult" class="mt-6 hidden">
+				<!-- 內容會由 JS 動態產生 -->
+			</div>
+		</section>
+
+	</main>
+
+	<footer class="bg-blue-50 py-6 mt-12">
+		<div class="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500">
+			&copy; 2025 StockMatch 投資媒合平台
+		</div>
+	</footer>
+
+	<script>
+
+		const userId = 1; // 假設固定為 1（測試用）
+		// 主選單按鈕狀態管理
+		function setActiveMainButton(activeId) {
+			const mainButtons = ['btn-overview', 'btn-trade', 'btn-watchlist', 'btn-market'];
+			mainButtons.forEach(id => {
+				const btn = document.getElementById(id);
+				if (btn) {  // 確保按鈕存在
+					if (id === activeId) {
+						btn.classList.add('bg-blue-600', 'text-white');
+						btn.classList.remove('bg-blue-100', 'text-blue-700');
+					} else {
+						btn.classList.remove('bg-blue-600', 'text-white');
+						btn.classList.add('bg-blue-100', 'text-blue-700');
+					}
+				}
+			});
+		}
+
+		// 我的帳戶子選單按鈕狀態管理
+		function setActiveSubButton(activeId) {
+			const subButtons = ['btn-overview-content', 'btn-records', 'btn-profit'];
+			subButtons.forEach(id => {
+				const btn = document.getElementById(id);
+				if (id === activeId) {
+					btn.classList.remove('bg-blue-100', 'text-blue-700');
+					btn.classList.add('bg-blue-600', 'text-white');
+				} else {
+					btn.classList.remove('bg-blue-600', 'text-white');
+					btn.classList.add('bg-blue-100', 'text-blue-700');
+				}
+			});
+		}
+
+		// 個股行情子選單按鈕狀態管理
+		function setActiveMarketButton(activeId) {
+			const marketButtons = ['btn-realtime', 'btn-historical'];
+			marketButtons.forEach(id => {
+				const btn = document.getElementById(id);
+				if (id === activeId) {
+					btn.classList.remove('bg-blue-100', 'text-blue-700');
+					btn.classList.add('bg-blue-600', 'text-white');
+				} else {
+					btn.classList.remove('bg-blue-600', 'text-white');
+					btn.classList.add('bg-blue-100', 'text-blue-700');
+				}
+			});
+		}
+
+		function showIdSection(id) {
+			const sections = ['overview', 'watchlist', 'market', 'trade'];
+			sections.forEach(sec => {
+				document.getElementById(sec).classList.add('hidden');
+			});
+			document.getElementById(id).classList.remove('hidden');
+
+			// 設置主選單按鈕狀態
+			setActiveMainButton(`btn-${id}`);
+
+			if (id === 'market') {
+				showMarketTab('realtime');
+			}
+
+			if (id === 'overview') {
+				showTab('overview-content', '帳戶概覽');
+			}
+
+			if (id === 'trade') {
+				document.getElementById("order-status").classList.remove("hidden");
+				showOrderStatus(); // 顯示委託狀態
+				if (id === 'trade') {
+					showOrderStatus();
+					startOrderRefresh();
+				}
+			}
+		}
+
+		let orderRefreshInterval;
+
+		function startOrderRefresh() {
+			orderRefreshInterval = setInterval(showOrderStatus, 30000);
+		}
+
+		function stopOrderRefresh() {
+			if (orderRefreshInterval) {
+				clearInterval(orderRefreshInterval);
+			}
+		}
+
+		function showTab(contentId, title) {
+			const contentList = ['overview-content', 'records', 'profit'];
+			contentList.forEach(cid => {
+				document.getElementById(cid).classList.add('hidden');
+			});
+			document.getElementById(contentId).classList.remove('hidden');
+			document.getElementById('section-title').innerText = title;
+
+			// 設置子選單按鈕狀態
+			setActiveSubButton(`btn-${contentId}`);
+		}
+
+		// 頁面加載完成後自動執行
+		document.addEventListener('DOMContentLoaded', function () {
+			loadAccountOverview();
+		    startAccountRefresh();
+
+			// 如果當前在交易頁面，顯示委託狀態
+			if (window.location.hash === '#trade') {
+				showOrderStatus();
+			}
+		});
+
+		// 獲取帳戶概覽信息
+		async function loadAccountOverview() {
+		    try {
+		        // 顯示載入狀態
+		        document.getElementById('account-name').textContent = '載入中...';
+		        document.getElementById('account-cash').textContent = '載入中...';
+		        document.getElementById('account-stock').textContent = '載入中...';
+		        document.getElementById('account-total').textContent = '載入中...';
+		        
+		        // 並行獲取現金餘額和持倉數據
+		        const [balanceRes, positionsRes] = await Promise.all([
+		            fetch(`/api/account-overview/${userId}`),
+		            fetch(`/api/trade/positions/${userId}`)
+		        ]);
+
+		        if (!balanceRes.ok || !positionsRes.ok) {
+		            throw new Error('獲取帳戶信息失敗');
+		        }
+
+		        const balanceData = await balanceRes.json();
+		        const positionsData = await positionsRes.json();
+
+		        // 計算證券資產總值
+		        let stockAssets = 0;
+		        if (positionsData.data && positionsData.data.length > 0) {
+		            stockAssets = positionsData.data.reduce((total, position) => {
+		                return total + (position.currentPrice * position.quantity);
+		            }, 0);
+		        }
+
+		        // 更新頁面數據
+		        document.getElementById('account-name').textContent = balanceData.accountName;
+		        document.getElementById('account-cash').textContent = formatCurrency(balanceData.balance);
+		        document.getElementById('account-stock').textContent = formatCurrency(stockAssets);
+		        document.getElementById('account-total').textContent = formatCurrency(balanceData.balance + stockAssets);
+
+		    } catch (error) {
+		        console.error('載入帳戶信息錯誤:', error);
+		        handleAccountLoadError(error);
+		    }
+		}
+		
+		// 貨幣格式化函數
+		function formatCurrency(amount) {
+		    return '$' + amount.toLocaleString('zh-TW', {
+		        minimumFractionDigits: 2,
+		        maximumFractionDigits: 2
+		    });
+		}
+
+		// 錯誤處理函數
+		function handleAccountLoadError(error) {
+		    document.getElementById('account-name').textContent = '載入失敗';
+		    document.getElementById('account-cash').textContent = '--';
+		    document.getElementById('account-stock').textContent = '--';
+		    document.getElementById('account-total').textContent = '--';
+
+			// 如果尚未存在重試按鈕，則建立並插入
+		    if (!document.getElementById('retry-button')) {
+		        const retryBtn = document.createElement('button');
+		        retryBtn.id = 'retry-button';
+		        retryBtn.textContent = '重試';
+		        retryBtn.className = 'bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm mt-2';
+		        retryBtn.onclick = loadAccountOverview;
+
+		        const container = document.getElementById('account-total').parentElement;
+		        container.appendChild(retryBtn);
+		    }
+		}
+		
+		// 添加定時刷新
+		let accountRefreshInterval;
+
+		function startAccountRefresh() {
+		    accountRefreshInterval = setInterval(loadAccountOverview, 60000); // 每分鐘刷新
+		}
+
+		// 離開頁面時清除
+		window.addEventListener('beforeunload', function() {
+		    clearInterval(accountRefreshInterval);
+		});
+
+		async function confirmReset() {
+			if (confirm('⚠️ 你確定要重置帳戶嗎？這會清除所有資料，無法復原！')) {
+				try {
+					const response = await fetch(`/api/account-overview/${userId}/reset`, {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'},
+						body: JSON.stringify({initialBalance: 100000})
+					});
+					// 清空金額顯示
+		            const accountTotalElem = document.getElementById('account-stock');
+		            if (accountTotalElem) {
+		                accountTotalElem.textContent = '0';  // 或改成 '0' 或其他你想顯示的值
+		            }
+
+					if (!response.ok) throw new Error('重置失敗');
+
+					alert('帳戶已成功重置');
+					// 重新載入數據
+					loadAccountOverview();
+				} catch (error) {
+					console.error('重置帳戶錯誤:', error);
+					alert('重置帳戶時發生錯誤: ' + error.message);
+				}
+			}
+		}
+
+		async function toggleProfitView() {
+			const type = document.getElementById('profitType').value;
+			document.getElementById('realized-profit').classList.toggle('hidden', type !== 'realized');
+			document.getElementById('unrealized-profit').classList.toggle('hidden', type !== 'unrealized');
+
+			const accountId = 1; // 可以從登入資料或 URL 帶入
+
+			if (type === 'realized') {
+				const res = await fetch(`/api/trade/realized-profit/${accountId}`);
+				const data = await res.json();
+				renderRealizedProfit(data.data); // 使用新的渲染函式
+			} else {
+				const res = await fetch(`/api/trade/positions/${accountId}`);
+				const data = await res.json();
+				renderUnrealizedProfit(data.data);
+			}
+		}
+
+		//已實現損益
+		function renderRealizedProfit(profits) {
+			const container = document.getElementById("realized-profit");
+			container.innerHTML = ""; // 清空現有內容
+
+			// 創建表格結構
+			let html = `
+		    <p class="text-gray-700 mb-2">已實現損益明細</p>
+		    <table class="w-full border text-sm mb-4">
+		      <thead>
+		        <tr class="bg-gray-100">
+		          <th class="p-2">股票代碼</th>
+		          <th>數量</th>
+		          <th>成本</th>
+		          <th>實現價格</th>
+		          <th>已實現損益</th>
+		          <th>交易日期</th>
+		        </tr>
+		      </thead>
+		      <tbody id="realized-profit-body">
+		  `;
+
+			// 添加每一行數據
+			profits.forEach(profit => {
+				const realizedPrice = profit.proceeds / profit.quantity;
+				const profitClass = profit.profit >= 0 ? 'text-red-600' : 'text-green-600';
+				const profitSign = profit.profit >= 0 ? '+' : '';
+
+				html += `
+		      <tr>
+		        <td>${profit.symbol}</td>
+		        <td>${profit.quantity}</td>
+		        <td>${profit.costBasis.toFixed(2)}</td>
+		        <td>${realizedPrice.toFixed(2)}</td>
+		        <td class="${profitClass} font-medium">
+		          ${profitSign}${profit.profit.toFixed(2)}
+		        </td>
+		        <td>${new Date(profit.transactionDate).toLocaleDateString()}</td>
+		      </tr>
+		    `;
+			});
+
+			// 結束表格
+			html += `
+		      </tbody>
+		    </table>
+		  `;
+
+			container.innerHTML = html;
+		}
+		
+		//未實現損益
+		async function renderUnrealizedProfit() {
+			const accountId = 1
+		    try {
+				// 添加刷新按鈕和狀態顯示
+		        const container = document.getElementById("unrealized-profit");
+		        container.innerHTML = `
+		            <div class="flex justify-between items-center mb-4">
+		                <h3 class="text-lg font-semibold">未實現損益</h3>
+		                <div class="flex items-center space-x-2">
+		                    <span id="unrealized-update-time" class="text-sm text-gray-500">
+		                        最後更新: ${new Date().toLocaleTimeString()}
+		                    </span>
+		                    <button id="refresh-unrealized" 
+		                            class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm 
+		                                   hover:bg-blue-200 flex items-center"
+		                            onclick="renderUnrealizedProfit()">
+		                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+		                        </svg>
+		                        更新
+		                    </button>
+		                </div>
+		            </div>
+		            <div id="unrealized-content">
+		                <div class="animate-pulse flex space-x-4 py-4">
+		                    <div class="h-8 bg-gray-200 rounded w-full"></div>
+		                </div>
+		            </div>
+		        `;
+				
+		        const response = await fetch(`/api/trade/positions/${accountId}`);
+		        const { success, data: positions, message } = await response.json();
+		        
+		        if (!success) throw new Error(message);
+				
+				// 過濾掉股數為0的股票
+		        const filteredPositions = positions.filter(position => position.quantity > 0);
+				
+				// 更新內容區域
+		        const contentDiv = document.getElementById("unrealized-content");
+				
+				if (filteredPositions.length === 0) {
+		            contentDiv.innerHTML = `
+		                <div class="bg-gray-50 p-4 rounded-lg text-center">
+		                    <p class="text-gray-500">目前沒有持有任何股票</p>
+		                </div>
+		            `;
+		            return;
+		        }
+				
+		        contentDiv.innerHTML = `
+		            <table class="w-full border text-sm">
+		                <thead>
+		                    <tr class="bg-gray-100">
+		                        <th class="p-2">股票代碼</th>
+		                        <th>數量</th>
+		                        <th>平均成本</th>
+		                        <th>當前價格</th>
+		                        <th>未實現損益</th>
+		                        <th>操作</th>
+		                    </tr>
+		                </thead>
+		                <tbody id="positions-body">
+		                </tbody>
+		            </table>
+		        `;
+
+		        const tbody = document.getElementById("positions-body");
+		        tbody.innerHTML = filteredPositions.map(position => {
+		            const profit = (position.currentPrice - position.averageCost);
+		            const totalProfit = profit * position.quantity;
+		            
+		            return `
+		                <tr>
+		                    <td>${position.symbol}</td>
+		                    <td>${position.quantity}</td>
+		                    <td>${position.averageCost.toFixed(2)}</td>
+		                    <td>${position.currentPrice.toFixed(2)}</td>
+		                    <td class="${totalProfit >= 0 ? 'text-red-600' : 'text-green-600'}">
+		                        ${totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(2)}
+		                    </td>
+		                    <td>
+								<button class="bg-blue-500 text-white px-3 py-1 rounded"
+		                                onclick="prepareClosePosition(
+		                                    '${position.symbol}', 
+		                                    ${position.quantity}, 
+		                                    ${position.currentPrice.toFixed(2)}
+		                                )">
+		                            平倉
+		                        </button>
+		                    </td>
+		                </tr>
+		            `;
+		        }).join('');
+				// 更新最後更新時間
+		        document.getElementById("unrealized-update-time").textContent = 
+		            `最後更新: ${new Date().toLocaleTimeString()}`;
+		        
+		    } catch (error) {
+		        console.error("持倉載入錯誤:", error);
+				const contentDiv = document.getElementById("unrealized-content") || container;
+		        contentDiv.innerHTML = `
+		            <div class="bg-red-50 p-4 rounded-lg">
+		                <p class="text-red-500">${error.message}</p>
+		                <button onclick="renderUnrealizedProfit()" 
+		                        class="mt-2 bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm">
+		                    重試
+		                </button>
+		            </div>
+		        `;
+		    }
+		}
+		
+		function prepareClosePosition(symbol, quantity, currentPrice) {
+		    // 切換到交易頁面
+		    showIdSection('trade');
+		    
+		    // 自動填充表單
+		    document.querySelector('#trade input[type="text"]').value = symbol;
+		    document.getElementById('order-quantity').value = quantity;
+		    document.getElementById('order-price').value = currentPrice;
+		    
+		    // 自動選擇賣出
+		    document.querySelector('#trade select').value = 'sell';
+		    
+		    // 滾動到表單位置
+		    document.getElementById('trade-form').scrollIntoView({
+		        behavior: 'smooth'
+		    });
+		    
+		    // 可選：顯示提示訊息
+		    showToast('info', `已帶入 ${symbol} 平倉資訊`);
+		}
+
+		// 交易功能
+		async function submitOrder() {
+			const symbol = document.querySelector('#trade input[type="text"]').value.trim();
+			const orderType = document.querySelector('#trade select').value;
+			const quantity = parseInt(document.getElementById('order-quantity').value);
+			const price = parseFloat(document.getElementById('order-price').value);
+
+			if (!symbol || isNaN(quantity) || isNaN(price) || quantity <= 0 || price <= 0) {
+				alert('請填寫有效的交易資訊');
+				return;
+			}
+
+			try {
+				const response = await fetch('/api/trade/place-order', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						accountId: 1, // 實際應用中應從登入狀態獲取
+						symbol: symbol,
+						orderType: orderType,
+						quantity: quantity,
+						price: price
+					})
+				});
+
+				const result = await response.json();
+
+				if (!response.ok) {
+					throw new Error(result.message || '下單失敗');
+				}
+
+				alert('訂單已成功提交');
+				document.getElementById("order-status").classList.remove("hidden");
+
+				showOrderStatus();
+				loadAccountOverview(); // 刷新帳戶資訊
+			} catch (error) {
+				console.error('下單失敗:', error);
+				alert('下單失敗: ' + error.message);
+			}
+		}
+
+		// 取消訂單
+		async function cancelOrder(orderId) {
+			if (!confirm('確定要取消這筆訂單嗎？')) return;
+
+			try {
+				const response = await fetch(`/api/trade/cancel-order/${orderId}`, {
+					method: 'POST'
+				});
+
+				const result = await response.json();
+
+				if (!response.ok) {
+					throw new Error(result.message || '取消訂單失敗');
+				}
+
+				alert('訂單已取消');
+				showOrderStatus();
+				loadAccountOverview(); // 刷新帳戶資訊
+			} catch (error) {
+				console.error('取消訂單失敗:', error);
+				alert('取消訂單失敗: ' + error.message);
+			}
+		}
+
+		// 載入訂單狀態
+		async function showOrderStatus() {
+			try {
+				const orderTable = document.getElementById('order-list');
+				orderTable.innerHTML = '<tr><td colspan="8" class="text-center py-4">載入中...</td></tr>';
+
+				const response = await fetch('/api/trade/orders/1'); // 帳戶ID 1為示例
+				const result = await response.json();
+
+				if (!response.ok) {
+					throw new Error(result.message || '獲取訂單失敗');
+				}
+
+				orderTable.innerHTML = ''; // 清空現有內容
+
+				// 直接使用 result 而非 result.data
+				const orders = result.data || result; // 兼容兩種格式
+
+				if (orders && orders.length > 0) {
+		            // 過濾出當天的訂單
+		            const today = new Date().toISOString().split('T')[0];
+		            const todayOrders = orders.filter(order => {
+		                const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+		                return orderDate === today;
+		            });
+	
+		            if (todayOrders.length > 0) {
+		                todayOrders.forEach(order => {
+		                    const row = document.createElement('tr');
+		                    row.innerHTML = `
+		                        <td>${order.symbol}</td>
+		                        <td>${order.orderType === 'buy' ? '買進' : '賣出'}</td>
+		                        <td>${order.quantity}</td>
+		                        <td>${order.price.toFixed(2)}</td>
+		                        <td>${new Date(order.createdAt).toLocaleString()}</td>
+		                        <td class="${order.status === 'pending' ? 'text-yellow-600' :
+		                            order.status === 'filled' ? 'text-red-600' : 'text-green-600'} font-semibold">
+		                            ${order.status === 'pending' ? '委託中' :
+		                            order.status === 'filled' ? '已成交' : '已取消'}
+		                        </td>
+		                        <td>${order.filledAt ? new Date(order.filledAt).toLocaleString() : '-'}</td>
+		                        <td>
+		                            ${order.status === 'pending' ?
+		                            `<button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600" 
+		                                      onclick="cancelOrder(${order.id})">刪單</button>` : '-'}
+		                        </td>
+		                    `;
+		                    orderTable.appendChild(row);
+		                });
+		            } else {
+		                orderTable.innerHTML = '<tr><td colspan="8" class="text-center py-4">今天沒有交易記錄</td></tr>';
+		            }
+		        } else {
+		            orderTable.innerHTML = '<tr><td colspan="8" class="text-center py-4">沒有交易記錄</td></tr>';
+		        }
+			} catch (error) {
+				console.error('獲取訂單失敗:', error);
+				document.getElementById('order-list').innerHTML =
+					'<tr><td colspan="8" class="text-center py-4 text-red-500">載入訂單失敗: ' + error.message + '</td></tr>';
+			}
+		}
+
+		function toggleDateInput() {
+			const type = document.getElementById('infoType').value;
+			const dateInput = document.getElementById('dateField');
+			dateInput.classList.toggle('hidden', type !== 'historical');
+		}
+
+		function showMarketTab(type) {
+			const realtime = document.getElementById('market-realtime');
+			const historical = document.getElementById('market-historical');
+
+			if (type === 'realtime') {
+				realtime.classList.remove('hidden');
+				historical.classList.add('hidden');
+			} else {
+				historical.classList.remove('hidden');
+				realtime.classList.add('hidden');
+			}
+
+			document.getElementById('marketResult').classList.add('hidden');
+
+			// 設置個股行情子選單按鈕狀態
+			setActiveMarketButton(`btn-${type}`);
+		}
+
+
+		function showMarketInfo(type) {
+			const stockInput = (type === 'realtime')
+				? document.querySelector('#market-realtime input[type="text"]').value.trim()
+				: document.querySelector('#market-historical input[type="text"]').value.trim();
+			const date = (type === 'historical')
+				? document.getElementById('queryDate').value
+				: '';
+
+			const resultBlock = document.getElementById('marketResult');
+			if (!stockInput) {
+				alert("請輸入股票名稱或代碼");
+				return;
+			}
+
+			fetch(`/api/stock?stockId=${stockInput}&type=${type}&queryDate=${date}`)
+				.then(response => {
+					if (!response.ok) throw new Error('資料查詢失敗');
+					return response.json();
+				})
+				.then(d => {
+					if (!d || !d.date) {
+						resultBlock.innerHTML = "<p class='text-red-600'>查無資料</p>";
+						resultBlock.classList.remove("hidden");
+						return;
+					}
+
+					const formatValue = (v) => {
+						if (v === undefined || v === null || v === '-') return '-';
+						const num = Number(v);
+						return isNaN(num) ? v : num.toFixed(2);
+					};
+					const formatIntValue = (v) => {
+					    if (v === undefined || v === null || v === '-') return '-';
+					    const num = Number(v);
+					    return isNaN(num) ? v : num.toLocaleString('zh-TW') + ' 股'; // 加入千分位和單位
+					};
+					const priceField = type === 'realtime' ? (d.isClosed ? '收盤價' : '即時股價') : '收盤價';
+					const priceValue = formatValue(d.close);
+					const diff = formatValue(d.change);
+					const percent = formatValue(d.percent);
+
+					const open = formatValue(d.open);
+					const high = formatValue(type === 'realtime' ? d.high : d.max);
+					const low = formatValue(type === 'realtime' ? d.low : d.min);
+					const close = formatValue(d.close);
+					const volume = formatIntValue(d.trading_Volume);
+
+					const isRising = d.change >= 0;
+					const priceClass = isRising ? 'text-red-600' : 'text-green-600';
+					const changeSign = isRising ? '+' : '';
+					const arrowIcon = isRising ? '▲' : '▼';
+
+					const mainInfo = `
+						<h3 class="text-lg font-semibold text-blue-700 mb-2">查詢結果</h3>
+						<div class="bg-gray-50 border rounded p-4 mb-4">
+							<p><strong>股票代碼：</strong> ${(d.stock_id)}</p>
+							<p><strong>股票名稱：</strong> ${d.stockName}</p>
+							<p><strong>${type === 'realtime' ? '資料時間' : '查詢日期'}：</strong> ${formatValue(d.date)} ${type === 'realtime' ? formatValue(d.time) : ''}</p>
+							<p><strong>${priceField}：</strong><span class="text-2xl ${priceClass}">
+								 ${priceValue} </span>元</p>
+						</div>
+					`;
+
+					const tableInfo = `
+						<table class="w-full border text-sm">
+							<thead class="bg-gray-100">
+								<tr>
+									<th class="p-2">開盤價</th>
+									<th>最高價</th>
+									<th>最低價</th>
+									<th>${priceField}</th>
+									<th>漲跌價差(%)</th>
+									<th>成交量</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="text-center">
+									<td>${formatPrice(open)}</td>
+									<td>${formatPrice(high)}</td>
+									<td>${formatPrice(low)}</td>
+									<td>${formatPrice(close)}</td>
+									<td class=" ${priceClass}">${changeSign}${formatPrice(diff)}  (${percent}%) ${arrowIcon}</td>
+									<td>${volume}</td>
+								</tr>
+							</tbody>
+						</table>
+					`;
+
+
+					const addWatchlistButton = `
+					  <button id="btnAddWatchlist" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+					    加入觀察列表
+					  </button>
+					`;
+
+					resultBlock.innerHTML = mainInfo + tableInfo + addWatchlistButton;
+					resultBlock.classList.remove("hidden");
+
+					document.getElementById('btnAddWatchlist').addEventListener('click', () => {
+						addToWatchlist(d.stock_id);
+					});
+
+				})
+
+				.catch(error => {
+					console.error("錯誤：", error);
+					resultBlock.innerHTML = `<p class="text-red-600">錯誤：${error.message}</p>`;
+					resultBlock.classList.remove("hidden");
+				});
+		}
+
+		async function addToWatchlist(symbol) {
+			try {
+				// 檢查是否已存在
+				const existing = await checkExistingWatchlist(userId, symbol);
+				if (existing) {
+					alert('該股票已存在於您的觀察列表');
+					return;
+				}
+
+				const response = await fetch('/api/watchlist', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						userId: userId,
+						stockId: symbol.toUpperCase().trim()
+					})
+				});
+
+				const result = await response.json();
+
+				if (!response.ok) {
+					throw new Error(result.message || '操作失敗');
+				}
+
+				alert(result.message || '新增成功');
+				// 自動刷新觀察列表
+				await loadWatchlist(userId);
+
+			} catch (error) {
+				console.error('觀察列表操作錯誤:', error);
+				alert(error.message || '發生未知錯誤');
+				// 可加入 Sentry 或類似錯誤追蹤
+			}
+		}
+
+		// 輔助函數：檢查是否已存在
+		async function checkExistingWatchlist(userId, symbol) {
+			try {
+				const response = await fetch(`/api/watchlist?userId=${userId}`);
+				const symbols = await response.json();
+				return symbols.includes(symbol.toUpperCase());
+			} catch (e) {
+				console.warn('檢查觀察列表時出錯:', e);
+				return false;
+			}
+		}
+
+		async function loadWatchlist() {
+			try {
+				// 顯示載入狀態
+				document.getElementById('watchlist').innerHTML = `
+		            <h2 class="text-xl font-semibold mb-4">觀察列表</h2>
+		            <div class="animate-pulse flex space-x-4">
+		                <div class="h-8 bg-gray-200 rounded w-full"></div>
+		            </div>
+		        `;
+
+				// 獲取帶詳細資訊的觀察列表
+				const response = await fetch(`/api/watchlist/with-details?userId=${userId}`);
+				if (!response.ok) throw new Error('伺服器回應異常');
+
+				const stocks = await response.json();
+				renderWatchlistWithDetails(stocks);
+
+			} catch (error) {
+				console.error('載入失敗:', error);
+				document.getElementById('watchlist').innerHTML = `
+		            <div class="bg-red-50 p-4 rounded-lg">
+		                <h2 class="text-red-600 font-semibold">觀察列表載入失敗</h2>
+		                <p class="text-sm">${error.message}</p>
+		                <button onclick="loadWatchlist()" 
+		                        class="mt-2 bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm">
+		                    重新載入
+		                </button>
+		            </div>
+		        `;
+			}
+		}
+		const stockPrices = {};
+
+		function renderWatchlistWithDetails(stocks) {
+			const container = document.getElementById('watchlist');
+
+			if (!stocks || stocks.length === 0) {
+				container.innerHTML = `
+		            <h2 class="text-xl font-semibold mb-4">觀察列表</h2>
+		            <p class="text-gray-500">您的觀察列表是空的</p>
+		            <button onclick="showSection('market')" 
+		                    class="mt-2 text-blue-600 hover:underline">
+		                前往市場添加股票
+		            </button>
+		        `;
+				return;
+			}
+
+			let html = `
+		        <h2 class="text-xl font-semibold mb-4">觀察列表</h2>
+		        <div class="overflow-x-auto">
+		            <table class="min-w-full divide-y divide-gray-200">
+		                <thead class="bg-gray-50">
+		                    <tr>
+		                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">代碼</th>
+		                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">名稱</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">當前價格</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">漲跌幅</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">開盤價</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">最高價</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">最低價</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">成交量</th>
+		                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+		                    </tr>
+		                </thead>
+		                <tbody class="bg-white divide-y divide-gray-200">
+		    `;
+
+			stocks.forEach(stock => {
+				const isRising = stock.change >= 0;
+				const priceClass = isRising ? 'text-red-600' : 'text-green-600';
+				const changeSign = isRising ? '+' : '';
+				const arrowIcon = isRising ? '▲' : '▼';
+
+				// 決定顯示價格
+				const displayPrice = stock.isClosed ? stock.close : stock.close; // 根據您的 DTO 調整
+				const formatIntValue = (v) => {
+									    if (v === undefined || v === null || v === '-') return '-';
+									    const num = Number(v);
+									    return isNaN(num) ? v : num.toLocaleString('zh-TW') + ' 股'; // 加入千分位和單位
+									};
+
+				stockPrices[stock.stock_id] = displayPrice;
+				
+				html += `
+		            <tr class="hover:bg-gray-50">
+		                <td class="px-4 py-3 whitespace-nowrap font-medium">${stock.stock_id}</td>
+		                <td class="px-4 py-3 whitespace-nowrap">${stock.stockName || '-'}</td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right ${priceClass}">
+		                    ${formatPrice(displayPrice)}
+		                </td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right ${priceClass}">
+		                    ${changeSign}${formatPrice(stock.change)} (${stock.percent}%) ${arrowIcon}
+		                </td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right">${formatPrice(stock.open)}</td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right">${formatPrice(stock.high)}</td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right">${formatPrice(stock.low)}</td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right">${formatIntValue(stock.trading_Volume)}</td>
+		                <td class="px-4 py-3 whitespace-nowrap text-right">
+		                    <button onclick="removeFromWatchlist('${stock.stock_id}')" 
+		                            class="text-red-500 hover:text-red-700 text-sm font-medium">
+		                        移除
+		                    </button>
+		                </td>
+		            </tr>
+		        `;
+			});
+
+			html += `
+		                </tbody>
+		            </table>
+		        </div>
+		        <div class="mt-3 text-xs text-gray-500 text-right">
+		            最後更新: ${new Date().toLocaleTimeString()}
+		            <button onclick="loadWatchlist()" class="ml-2 text-blue-600 hover:underline">
+		                刷新數據
+		            </button>
+		        </div>
+		    `;
+
+			container.innerHTML = html;
+		}
+		// 在 loadWatchlist 函數之前添加這些工具函數
+		function formatPrice(price) {
+			if (price === null || price === undefined) return '-';
+			// 轉換為數字並保留2位小數
+			const num = parseFloat(price);
+			return isNaN(num) ? '-' : num.toFixed(2);
+		}
+
+		async function removeFromWatchlist(symbol) {
+			if (!confirm(`確定要移除 ${symbol} 嗎？`)) return;
+
+			try {
+				// 顯示處理中狀態
+				const buttons = document.querySelectorAll(`button[onclick="removeFromWatchlist('${symbol}')"]`);
+				buttons.forEach(btn => {
+					btn.disabled = true;
+					btn.innerHTML = '<span class="animate-spin">⏳</span> 處理中';
+				});
+
+				const response = await fetch('/api/watchlist', {
+					method: 'DELETE',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						userId: 1, // 替換為實際用戶ID
+						stockId: symbol
+					})
+				});
+
+				if (!response.ok) {
+					const error = await response.json();
+					throw new Error(error.message || '移除失敗');
+				}
+
+				// 局部更新而非重新載入整個列表
+				const row = document.querySelector(`tr:has(button[onclick="removeFromWatchlist('${symbol}')"])`);
+				if (row) row.remove();
+
+				showToast('success', `已移除 ${symbol}`);
+
+			} catch (error) {
+				console.error('移除失敗:', error);
+				showToast('error', error.message);
+			}
+		}
+
+		// 簡易 Toast 函數
+		function showToast(type, message) {
+			const toast = document.createElement('div');
+			toast.className = `fixed top-4 right-4 px-4 py-2 rounded shadow-lg ${type === 'success' ? 'bg-red-500' : 'bg-green-500'
+				} text-white`;
+			toast.textContent = message;
+			document.body.appendChild(toast);
+
+			setTimeout(() => toast.remove(), 3000);
+		}
+
+		function showSection(id) {
+			const sections = ['overview', 'watchlist', 'market', 'trade'];
+			sections.forEach(sec => document.getElementById(sec).classList.add('hidden'));
+			document.getElementById(id).classList.remove('hidden');
+
+			if (id === 'overview') {
+				showTab('overview-content', '帳戶概覽');
+			} else if (id === 'watchlist') {
+				loadWatchlist(userId);
+			}
+		}
+
+
+		async function fetchWatchlist() {
+			try {
+				const response = await fetch(`/api/watchlist?userId=${userId}`);
+				const symbols = await response.json();
+				renderWatchlist(symbols);
+			} catch (error) {
+				console.error("取得觀察列表失敗", error);
+			}
+		}
+
+		function renderWatchlist(symbols) {
+			const container = document.getElementById('watchlist');
+
+			// 基本結構
+			let html = `
+		        <h2 class="text-xl font-semibold text-blue-700 mb-4">觀察列表</h2>
+		    `;
+
+			// 處理空列表
+			if (!symbols || symbols.length === 0) {
+				html += '<p class="text-gray-500">您的觀察列表是空的</p>';
+				container.innerHTML = html;
+				return;
+			}
+
+			// 建立列表
+			html += `
+		        <ul class="space-y-2">
+		            ${symbols.map(symbol => `
+		                <li class="bg-white shadow-sm p-3 rounded-lg flex justify-between items-center">
+		                    <span class="font-medium">${symbol}</span>
+		                    <button onclick="removeFromWatchlist('${symbol}')"
+		                            class="text-red-500 hover:text-red-700 text-sm">
+		                        移除
+		                    </button>
+		                </li>
+		            `).join('')}
+		        </ul>
+		    `;
+
+			container.innerHTML = html;
+		}
+
+		function showWatchlist() {
+			setActiveMainButton('btn-watchlist');
+			showSection('watchlist'); // 這裡才顯示
+		}
+
+		// 頁面載入時立即取得觀察列表
+		window.addEventListener('load', function () {
+			// 強制設置主選單和子選單的預設按鈕狀態
+			setActiveMainButton('btn-overview');
+			setActiveSubButton('btn-overview-content');
+
+			// 確保所有資源包括圖片都已完成加載
+			showSection('overview');
+			showTab('overview-content', '帳戶概覽');
+			loadWatchlist(1); // 使用實際用戶ID
+		});
+	</script>
+</body>
+
+</html>

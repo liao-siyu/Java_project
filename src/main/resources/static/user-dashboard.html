@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>會員中心 - StockMatch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-50 text-gray-800 overflow-y-scroll">
+  <!-- 導覽列 -->
+  <header class="bg-white" x-data="{ open: false }">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-700">StockMatch</a>
+      <nav class="hidden md:flex space-x-4">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600">首頁</span>
+        <a href="about.html" class="text-gray-700 hover:text-blue-600">關於我們</a>
+        <a href="analyst-list.html" class="text-gray-700 hover:text-blue-600">找分析師</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600">免費試閱</a>
+        <a href="simulator.html" class="text-gray-700 hover:text-blue-600">模擬交易</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600">購物車</a>
+        <span class="text-blue-700 font-semibold">會員中心</span>
+      </nav>
+      <button @click="open = !open" class="md:hidden text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- 手機選單 -->
+    <div x-show="open" class="md:hidden px-4 pb-4 space-y-2">
+      <a href="index.html" class="block text-gray-700 hover:text-blue-600">首頁</span>
+      <a href="about.html" class="block text-gray-700 hover:text-blue-600">關於我們</a>
+      <a href="analyst-list.html" class="block text-gray-700 hover:text-blue-600">找分析師</a>
+      <a href="#" class="block text-gray-700 hover:text-blue-600">免費試閱</a>
+      <a href="#" class="block text-gray-700 hover:text-blue-600">模擬交易</a>
+      <a href="#" class="block text-gray-700 hover:text-blue-600">購物車</a>
+      <span class="block text-blue-700 font-semibold">會員中心</span>
+    </div>
+  </header>
+
+  <!-- 內容區塊 -->
+  <main class="max-w-4xl mx-auto py-10 px-4" x-data="{ tab: 'subscription' }">
+    <h2 class="text-3xl font-bold text-center mb-6">🏠 會員中心</h2>
+
+    <!-- 頁籤按鈕 -->
+    <div class="flex justify-center space-x-4 mb-8">
+      <button @click="tab = 'subscription'" :class="tab === 'subscription' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-blue-500'" class="px-4 py-2 font-semibold focus:outline-none">我的訂閱方案</button>
+      <button @click="tab = 'favorites'" :class="tab === 'favorites' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-blue-500'" class="px-4 py-2 font-semibold focus:outline-none">收藏的分析師</button>
+      <button @click="tab = 'account'" :class="tab === 'account' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-blue-500'" class="px-4 py-2 font-semibold focus:outline-none">帳號設定</button>
+      <button @click="tab = 'logout'" :class="tab === 'logout' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-600 hover:text-red-500'" class="px-4 py-2 font-semibold focus:outline-none">登出</button>
+    </div>
+
+    <!-- 頁籤內容 -->
+    <div x-show="tab === 'subscription'" class="bg-white p-6 rounded shadow">
+      <h3 class="text-xl font-semibold mb-2">我的訂閱方案</h3>
+      <p>方案：免費會員</p>
+      <p>狀態：尚未訂閱付費方案</p>
+    </div>
+
+    <div x-show="tab === 'favorites'" class="bg-white p-6 rounded shadow">
+      <h3 class="text-xl font-semibold mb-2">收藏的分析師</h3>
+      <p class="text-sm text-gray-600">目前尚未收藏分析師。</p>
+    </div>
+
+    <div x-show="tab === 'account'" class="bg-white p-6 rounded shadow">
+      <h3 class="text-xl font-semibold mb-2">帳號設定</h3>
+      <p class="text-sm text-gray-600">Email：test@example.com</p>
+      <p class="text-sm text-gray-600">名稱：王小明</p>
+    </div>
+
+    <div x-show="tab === 'logout'" class="text-center bg-white p-6 rounded shadow">
+      <h2 class="text-xl font-semibold text-red-600 mb-2">⚠️ 登出提醒</h2>
+      <p>您確定要登出嗎？</p>
+      <div class="mt-3">
+      <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">確認登出</button>
+      </div>   
+    </div>
+
+    
+  </main>
+
+  <footer class="bg-blue-50 py-6 mt-12">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      &copy; 2025 StockMatch 投資媒合平台
+    </div>
+  </footer>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

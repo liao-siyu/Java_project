@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>關於我們 | StockMatch 投資媒合平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- 導覽列 -->
+  <header class="bg-white shadow" x-data="{ open: false }">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-700">StockMatch</a>
+      <nav class="hidden md:flex space-x-4">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600">首頁</a>
+        <span class="text-blue-700 font-semibold">關於我們</span>
+        <a href="analyst-list.html" class="text-gray-700 hover:text-blue-600">找分析師</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600">免費試閱</a>
+        <a href="simulator.html" class="text-gray-700 hover:text-blue-600">模擬交易</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600">購物車</a>
+        <a href="auth.html" class="text-gray-700 hover:text-blue-600 auth-link">登入 / 註冊</a>
+      </nav>
+      <button @click="open = !open" class="md:hidden text-gray-600 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <!-- 手機選單 -->    
+    <div x-show="open" class="md:hidden px-4 pb-4 space-y-2">
+        <a href="index.html" class="block text-gray-700 hover:text-blue-600">首頁</a>
+        <span class="block text-blue-700 font-semibold">關於我們</span>
+        <a href="analyst-list.html" class="block text-gray-700 hover:text-blue-600">找分析師</a>
+        <a href="#" class="block text-gray-700 hover:text-blue-600">免費試閱</a>
+        <a href="#" class="block text-gray-700 hover:text-blue-600">模擬交易</a>
+        <a href="#" class="block text-gray-700 hover:text-blue-600">購物車</a>
+        <a href="auth.html" class="block text-gray-700 hover:text-blue-600 auth-link">登入 / 註冊</a>
+    </div>
+  </header>
+
+  <!-- 關於我們主內容 -->
+  <section class="bg-blue-50 py-20 text-center px-4">
+    <h1 class="text-3xl md:text-5xl font-bold mb-4">連結分析師與投資者的平台</h1>
+    <p class="text-lg text-gray-700 max-w-2xl mx-auto mb-8">StockMatch 投資媒合平台致力於打造一個專業、透明且高效的財經資訊交流環境，協助投資人與優質分析師媒合，提升投資決策的準確性與信心。</p>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 py-10">
+    <div class="bg-white p-8 rounded-2xl shadow-md mb-8">
+      <h2 class="text-2xl font-bold mb-4 text-blue-700">平台特色</h2>
+      <ul class="list-disc list-inside text-gray-700 space-y-2 text-left">
+		<li>🔍 專業媒合：嚴選具備專業證照與豐富經驗的分析師，確保資訊品質。</li>
+		<li>📊 資訊透明：所有分析報告、績效數據公開透明，讓用戶安心選擇。</li>
+		<li>🤝 互利共贏：促進投資人與分析師雙贏，打造健康投資生態圈。</li>
+		<li>💹 模擬實戰：提供擬真市場環境，讓用戶無風險體驗投資策略與操作，提升實戰能力。</li>
+      </ul>
+    </div>
+    <div class="bg-white p-8 rounded-2xl shadow-md mb-8">
+      <h2 class="text-2xl font-bold mb-4 text-blue-700">團隊介紹</h2>
+      <p class="text-gray-700 mb-2">StockMatch 由一群熱愛金融科技、擁有豐富產業經驗的專業人士組成，團隊成員涵蓋金融分析、軟體開發、用戶體驗設計等領域。</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div class="text-center">
+          <img src="/images/1.jpg" alt="創辦人" class="mx-auto rounded-full w-24 h-24 mb-2">
+          <div class="font-semibold">廖偲妤</div>
+          <div class="text-sm text-gray-500">創辦人 / 軟體工程師</div>
+        </div>
+        <div class="text-center">
+          <img src="/images/2.jpg" alt="創辦人" class="mx-auto rounded-full w-24 h-24 mb-2">
+          <div class="font-semibold">張哲維</div>
+          <div class="text-sm text-gray-500">創辦人 / 軟體工程師</div>
+        </div>
+        <!-- <div class="text-center">
+          <img src="/images/team3.jpg" alt="設計總監" class="mx-auto rounded-full w-24 h-24 mb-2">
+          <div class="font-semibold">陳志豪</div>
+          <div class="text-sm text-gray-500">設計總監 / UX設計師</div>
+        </div> -->
+      </div>
+    </div>
+    <div class="bg-white p-8 rounded-2xl shadow-md">
+      <h2 class="text-2xl font-bold mb-4 text-blue-700">聯絡我們</h2>
+      <p class="text-gray-700 mb-2">有任何問題或合作需求，歡迎透過以下方式聯絡我們：</p>
+      <ul class="text-gray-700">
+        <li>Email：<a href="mailto:service@stockmatch.com" class="text-blue-600 hover:underline">service@stockmatch.com</a></li>
+        <li>客服專線：03-4567-888</li>
+        <li>地址：桃園市楊梅區幼獅路二段3號自強樓402室</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-50 py-6 mt-12">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+        &copy; 2025 StockMatch 投資媒合平台
+    </div>
+  </footer>
+
+
+  <script src="js/auth-status.js"></script>
+
+</body>
+</html> 

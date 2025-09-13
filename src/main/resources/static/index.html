@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockMatch 投資媒合平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js 用來控制漢堡選單 -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 overflow-y-scroll">
+
+  <!-- 導覽列 -->
+  <header class="bg-white" x-data="{ open: false }">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-700">StockMatch</a>
+      <nav class="hidden md:flex space-x-4">
+        <span class="text-blue-700 font-semibold">首頁</span>
+        <a href="about.html" class="text-gray-700 hover:text-blue-600">關於我們</a>
+        <a href="analyst-list.html" class="text-gray-700 hover:text-blue-600">找分析師</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600">免費試閱</a>
+        <a href="simulator.html" class="text-gray-700 hover:text-blue-600">模擬交易</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600">購物車</a>
+        <a href="auth.html" class="text-gray-700 hover:text-blue-600 auth-link">登入 / 註冊</a>
+      </nav>
+      <button @click="open = !open" class="md:hidden text-gray-600 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- 手機選單 -->
+    <div x-show="open" class="md:hidden px-4 pb-4 space-y-2">
+        <span class="block text-blue-700 font-semibold">首頁</span>
+        <a href="about.html" class="block text-gray-700 hover:text-blue-600">關於我們</a>
+        <a href="analyst-list.html" class="block text-gray-700 hover:text-blue-600">找分析師</a>
+        <a href="#" class="block text-gray-700 hover:text-blue-600">免費試閱</a>
+        <a href="#" class="block text-gray-700 hover:text-blue-600">模擬交易</a>
+        <a href="#" class="block text-gray-700 hover:text-blue-600">購物車</a>
+        <a href="auth.html" class="block text-gray-700 hover:text-blue-600 auth-link">登入 / 註冊</a>
+    </div>
+  </header>
+
+  <!-- Hero 區 -->
+  <section class="bg-blue-50 py-20 text-center px-4">
+    <h1 class="text-3xl md:text-5xl font-bold mb-4">專業分析 & 智慧投資</h1>
+    <p class="text-lg text-gray-700 mb-8">找到專業的財經分析師，做出更有利的投資決策</p>
+    <a href="analyst-list.html" class="bg-blue-600 text-white px-6 py-3 rounded text-lg hover:bg-blue-700">立即開始</a>
+  </section>
+
+  <!-- 搜尋區 -->
+  <section class="max-w-6xl mx-auto px-4 py-10">
+    <h3 class="text-2xl font-bold text-gray-800 text-center mb-6">🔍 搜尋分析師</h3>
+      <div class="bg-white p-6 rounded-2xl shadow-md">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <select class="w-full border rounded px-3 py-2">
+          <option>選擇投資風格</option>
+          <option>價值型</option>
+          <option>成長型</option>
+          <option>波段操作</option>
+        </select>
+        <select class="w-full border rounded px-3 py-2">
+          <option>選擇專長</option>
+          <option>股票技術分析</option>
+          <option>ETF配置與資產管理</option>
+          <option>加密貨幣分析</option>
+        </select>
+        <select class="w-full border rounded px-3 py-2">
+          <option>收費範圍</option>
+          <option>免費</option>
+          <option>NT$500 以下</option>
+          <option>NT$500 - NT$1000</option>
+        </select>
+        <button class="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700">搜尋</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 推薦分析師 -->
+  <section id="analysts" class="max-w-6xl mx-auto px-4 py-8">
+    <h3 class="text-2xl font-bold text-gray-800 text-center mb-6">🏆 推薦分析師</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- 分析師卡片 -->
+        <div class="bg-white p-4 rounded-2xl shadow text-center hover:shadow-lg transition">
+          <img src="/images/analyst1.jpg" alt="分析師" class="mx-auto rounded-full w-32 h-32 mb-4">
+          <h3 class="font-semibold text-lg">林分析師</h3>
+          <p class="text-sm text-gray-600">專長：股票技術分析</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow text-center hover:shadow-lg transition">
+          <img src="/images/analyst2.jpg" alt="分析師" class="mx-auto rounded-full w-32 h-32 mb-4">
+          <h3 class="font-semibold text-lg">陳顧問</h3>
+          <p class="text-sm text-gray-600">專長：ETF配置與資產管理</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow text-center hover:shadow-lg transition">
+          <img src="/images/analyst3.jpg" alt="分析師" class="mx-auto rounded-full w-32 h-32 mb-4">
+          <h3 class="font-semibold text-lg">張老師</h3>
+          <p class="text-sm text-gray-600">專長：加密貨幣分析</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow text-center hover:shadow-lg transition">
+            <img src="/images/analyst3.jpg" alt="分析師" class="mx-auto rounded-full w-32 h-32 mb-4">
+            <h3 class="font-semibold text-lg">張老師</h3>
+            <p class="text-sm text-gray-600">專長：加密貨幣分析</p>
+        </div>
+    </div>
+  </section>
+
+    <!-- 最新報告區 -->
+    <section class="py-10">
+        <div class="max-w-6xl mx-auto px-4">
+          <h3 class="text-2xl font-bold text-gray-800 text-center mb-6">📰 最新分析報告</h3>
+          <div class="space-y-4">
+            <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
+              <h4 class="text-lg font-semibold">2025台股展望：哪些產業最具潛力？</h4>
+              <p class="text-sm text-gray-600">發布者：林分析師｜方案：免費試閱｜觀看數：1,203｜留言：34</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
+                <h4 class="text-lg font-semibold">2025台股展望：哪些產業最具潛力？</h4>
+                <p class="text-sm text-gray-600">發布者：林分析師｜方案：免費試閱｜觀看數：1,203｜留言：34</p>
+            </div>
+            <!-- 更多報告可複製 -->
+          </div>
+        </div>
+    </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-50 py-6 mt-12">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+        &copy; 2025 StockMatch 投資媒合平台
+    </div>
+  </footer>
+
+
+  <script src="js/auth-status.js"></script>
+  <script src="js/index.js" defer></script>
+</body>
+</html>
