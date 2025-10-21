@@ -6,16 +6,16 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-@Entity
-@Table(name = "accounts")
-public class AccountOverview {
+@Entity		//標註這是一個JPA實體類
+@Table(name = "accounts")	//指定對應的資料庫表名稱
+public class AccountOverview {	//帳戶概覽實體類
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private Long accountId;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = false)		
     private Long userId;
 
     @Column(name = "account_name", nullable = false, length = 100)

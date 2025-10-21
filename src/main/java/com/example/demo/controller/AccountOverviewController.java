@@ -19,10 +19,10 @@ public class AccountOverviewController {
         this.accountService = accountService;
     }
     
-    @GetMapping("/{userId}")
-    public ResponseEntity<AccountOverviewDTO> getAccountOverview(@PathVariable Long userId) {
-        AccountOverviewDTO account = accountService.getAccountOverview(userId);
-        return ResponseEntity.ok(account);
+    @GetMapping("/{userId}")		//獲取前端使用者帳戶資料
+    public ResponseEntity<AccountOverviewDTO> getAccountOverview(@PathVariable Long userId) {	//從URL路徑取得userId				
+        AccountOverviewDTO account = accountService.getAccountOverview(userId);		//呼叫service層方法獲取帳戶資料
+        return ResponseEntity.ok(account);		//返回帳戶資料給前端
     }
     
     @GetMapping("/{userId}/balance")

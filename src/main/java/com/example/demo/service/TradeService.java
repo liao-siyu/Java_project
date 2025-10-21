@@ -52,10 +52,12 @@ public class TradeService {
 	// 新增：最大重試次數
 	private static final int MAX_RETRY = 3;
 
+	// 查詢帳戶的指定狀態訂單
 	public List<Order> getOrdersByStatus(Long accountId, String status) {
 		return orderRepository.findByAccountIdAndStatus(accountId, status);
 	}
 
+	// 查詢帳戶的全部訂單
 	public List<Order> getAllOrders(Long accountId) {
 		return orderRepository.findByAccountId(accountId);
 	}
@@ -68,10 +70,11 @@ public class TradeService {
 		return realizedProfitRepository.findByAccountId(accountId);
 	}
 
-	@Transactional
+	// @Transactional 註解表示此方法內的所有資料庫操作將在同一個交易中執行
+	@Transactional		
 	public Order placeOrder(Long accountId, String symbol, String orderType, int quantity, BigDecimal price) {
 		// 1. 驗證帳戶
-		Account account = accountRepository.findById(accountId)
+		Account account = accountRepository.findById(accountId) // findById 是 JpaRepository 內建的方法
 				.orElseThrow(() -> new IllegalArgumentException("帳戶不存在"));
 
 		// 2. 驗證股票代碼
@@ -89,7 +92,7 @@ public class TradeService {
 
 			// 凍結資金
 			account.setBalance(account.getBalance().subtract(totalCost));
-			accountRepository.save(account);
+			accountRepository.save(account); // save() 是 JpaRepository 內建的方法
 		} else if (orderType.equals("sell")) {
 			// 賣單驗證：檢查持有數量是否足夠
 			Position position = positionRepository.findByAccountIdAndSymbol(accountId, symbol)
@@ -99,9 +102,6 @@ public class TradeService {
 				throw new IllegalArgumentException("持有數量不足");
 			}
 
-			// 凍結股票
-			position.setFrozenQuantity(position.getFrozenQuantity() + quantity);
-			// positionRepository.save(position);
 		} else {
 			throw new IllegalArgumentException("無效的訂單類型");
 		}
@@ -141,7 +141,6 @@ public class TradeService {
 			Position position = positionRepository.findByAccountIdAndSymbol(order.getAccountId(), order.getSymbol())
 					.orElseThrow(() -> new IllegalArgumentException("持倉不存在"));
 
-			position.setFrozenQuantity(position.getFrozenQuantity() - order.getQuantity());
 			positionRepository.save(position);
 		}
 
@@ -150,6 +149,7 @@ public class TradeService {
 		orderRepository.save(order);
 	}
 
+	// 排程處理「待處理」訂單
 	@Scheduled(fixedRate = 50000) // 每50秒執行一次
 	public void processPendingOrders() {
 		logger.info("開始處理待處理訂單...");
@@ -160,84 +160,76 @@ public class TradeService {
 			return;
 		}
 
-//		try {
-//			List<Order> pendingOrders = orderRepository.findByStatus("pending");
-//			for (Order order : pendingOrders) {
-//				logger.info("處理訂單 {}: {}{} @ {}", order.getId(), order.getOrderType(), order.getSymbol(),
-//						order.getPrice());
-//				processSingleOrderWithRetry(order, MAX_RETRY);
-//			}
-//		} catch (Exception e) {
-//			logger.error("排程任務發生未預期錯誤", e);
-//		}
 		try {
-	        List<Order> pendingOrders = orderRepository.findByStatus("pending");
-	        
-	        //  若沒有任何 pending 訂單，直接跳過
-	        if (pendingOrders.isEmpty()) {
-	            logger.info("目前無委託中訂單，跳過報價與撮合處理");
-	            return;
-	        }
+			// 讀取 pending 訂單清單
+			List<Order> pendingOrders = orderRepository.findByStatus("pending");
 
-	        // Step 1: 分組所有股票代碼
-	        Map<String, List<Order>> ordersBySymbol = pendingOrders.stream()
-	            .collect(Collectors.groupingBy(Order::getSymbol));
+			// 若沒有任何 pending 訂單，直接跳過
+			if (pendingOrders.isEmpty()) {
+				logger.info("目前無委託中訂單，跳過報價與撮合處理");
+				return;
+			}
 
-	        // Step 2: 緩存股價
-	        Map<String, MarketTwseStockDTO> stockPriceCache = new HashMap<>();
+			// Step 1: 分組所有股票代碼，因每檔只抓一次價
+			Map<String, List<Order>> ordersBySymbol = pendingOrders.stream()
+					.collect(Collectors.groupingBy(Order::getSymbol));
 
-	        for (String symbol : ordersBySymbol.keySet()) {
-	            try {
-	                // 每支股票只抓一次報價
-	                MarketTwseStockDTO dto = marketService.getRealtimeStock(symbol);
-	                stockPriceCache.put(symbol, dto);
-	            } catch (Exception e) {
-	                logger.warn("無法取得股票 {} 報價，跳過其訂單: {}", symbol, e.getMessage());
-	            }
-	        }
+			// Step 2: 緩存股價
+			Map<String, MarketTwseStockDTO> stockPriceCache = new HashMap<>();
 
-	        // Step 3: 執行訂單處理
-	        for (Order order : pendingOrders) {
-	            MarketTwseStockDTO dto = stockPriceCache.get(order.getSymbol());
-	            if (dto == null) continue; // 查不到價格就跳過
+			for (String symbol : ordersBySymbol.keySet()) {
+				try {
+					// 每支股票只抓一次報價
+					MarketTwseStockDTO dto = marketService.getRealtimeStock(symbol);
+					stockPriceCache.put(symbol, dto);
+				} catch (Exception e) {
+					logger.warn("無法取得股票 {} 報價，跳過其訂單: {}", symbol, e.getMessage());
+				}
+			}
 
-	            try {
-	                processSingleOrderWithPrice(order, dto.getClose().setScale(2, RoundingMode.HALF_UP));
-	            } catch (Exception e) {
-	                logger.warn("處理訂單 {} 發生錯誤: {}", order.getId(), e.getMessage());
-	            }
-	        }
+			// Step 3: 執行訂單處理
+			for (Order order : pendingOrders) {
+				MarketTwseStockDTO dto = stockPriceCache.get(order.getSymbol());
+				if (dto == null)
+					continue; // 查不到價格就跳過
 
-	    } catch (Exception e) {
-	        logger.error("排程任務發生未預期錯誤", e);
-	    }
-		
+				try {
+					processSingleOrderWithPrice(order, dto.getClose().setScale(2, RoundingMode.HALF_UP));
+				} catch (Exception e) {
+					logger.warn("處理訂單 {} 發生錯誤: {}", order.getId(), e.getMessage());
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error("排程任務發生未預期錯誤", e);
+		}
+
 	}
-	
+
+	// 使用已知價格處理單一訂單
 	@Transactional
 	protected void processSingleOrderWithPrice(Order order, BigDecimal currentPrice) throws Exception {
-	    Order freshOrder = orderRepository.findById(order.getId())
-	        .orElseThrow(() -> new Exception("訂單不存在"));
+		Order freshOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new Exception("訂單不存在"));
 
-	    if (!"pending".equals(freshOrder.getStatus())) {
-	        throw new Exception("訂單狀態已變更為: " + freshOrder.getStatus());
-	    }
+		if (!"pending".equals(freshOrder.getStatus())) {
+			throw new Exception("訂單狀態已變更為: " + freshOrder.getStatus());
+		}
 
-	    BigDecimal orderPrice = freshOrder.getPrice().setScale(2, RoundingMode.HALF_UP);
+		BigDecimal orderPrice = freshOrder.getPrice().setScale(2, RoundingMode.HALF_UP);
 
-	    boolean shouldExecute = false;
-	    if ("buy".equals(freshOrder.getOrderType())) {
-	        shouldExecute = currentPrice.compareTo(orderPrice) <= 0;
-	    } else if ("sell".equals(freshOrder.getOrderType())) {
-	        shouldExecute = currentPrice.compareTo(orderPrice) >= 0;
-	    }
+		boolean shouldExecute = false;
+		if ("buy".equals(freshOrder.getOrderType())) {
+			shouldExecute = currentPrice.compareTo(orderPrice) <= 0;
+		} else if ("sell".equals(freshOrder.getOrderType())) {
+			shouldExecute = currentPrice.compareTo(orderPrice) >= 0;
+		}
 
-	    if (shouldExecute) {
-	        executeOrder(freshOrder, currentPrice);
-	    }
+		if (shouldExecute) {
+			executeOrder(freshOrder, currentPrice);
+		}
 	}
 
-
+	// 帶重試機制的單一訂單處理
 	private void processSingleOrderWithRetry(Order order, int retryCount) {
 		for (int i = 0; i < retryCount; i++) {
 			try {
@@ -252,6 +244,7 @@ public class TradeService {
 		}
 	}
 
+	// 使用即時價格處理單一訂單
 	@Transactional
 	protected void processSingleOrder(Order order) throws Exception {
 		// 重新從DB加載最新狀態
@@ -279,6 +272,7 @@ public class TradeService {
 		}
 	}
 
+	// 執行訂單
 	@Transactional
 	protected void executeOrder(Order order, BigDecimal executionPrice) {
 		// 再次驗證狀態
@@ -302,6 +296,7 @@ public class TradeService {
 		logger.info("訂單 {} 已成功執行", order.getId());
 	}
 
+	// 處理買單
 	private void processBuyOrder(Order order, BigDecimal executionPrice) {
 		Position position = positionRepository.findByAccountIdAndSymbol(order.getAccountId(), order.getSymbol())
 				.orElseGet(() -> {
@@ -323,12 +318,12 @@ public class TradeService {
 		positionRepository.save(position);
 	}
 
+	// 處理賣單
 	private void processSellOrder(Order order, BigDecimal executionPrice) {
 		Position position = positionRepository.findByAccountIdAndSymbol(order.getAccountId(), order.getSymbol())
 				.orElseThrow(() -> new IllegalStateException("持倉不存在"));
 
 		// 解凍並減少股票
-		position.setFrozenQuantity(position.getFrozenQuantity() - order.getQuantity());
 		position.setQuantity(position.getQuantity() - order.getQuantity());
 		positionRepository.save(position);
 
@@ -344,6 +339,7 @@ public class TradeService {
 		recordRealizedProfit(order, position, executionPrice);
 	}
 
+	// 記錄已實現損益
 	private void recordRealizedProfit(Order order, Position position, BigDecimal executionPrice) {
 		BigDecimal costBasis = position.getAverageCost().multiply(new BigDecimal(order.getQuantity()));
 		BigDecimal profit = executionPrice.multiply(new BigDecimal(order.getQuantity())).subtract(costBasis);
@@ -359,6 +355,7 @@ public class TradeService {
 		realizedProfitRepository.save(record);
 	}
 
+	// 判斷台股市場是否開盤
 	private boolean isMarketOpenNow() {
 		ZoneId taipeiZone = ZoneId.of("Asia/Taipei");
 		ZonedDateTime now = ZonedDateTime.now(taipeiZone);

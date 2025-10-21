@@ -3,16 +3,16 @@ package com.example.demo.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class AccountOverviewDTO {
+public class AccountOverviewDTO {	//帳戶概覽資料傳輸對象，定義要給前端傳的欄位（結構）
 
 	
-	private Long accountId;
-    private Long userId;
-    private String accountName;
-    private BigDecimal balance;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Boolean isActive;
+	private Long accountId;		//帳戶ID(前端未使用
+    private Long userId;		//使用者ID(前端未使用
+    private String accountName;		//帳戶名稱
+    private BigDecimal balance;		//帳戶餘額
+    private LocalDateTime createdAt;		//帳戶創建時間(前端未使用
+    private LocalDateTime updatedAt;		//帳戶更新時間	(前端未使用
+    private Boolean isActive;		//帳戶是否啟用(前端未使用
     
 	public Long getAccountId() {
 		return accountId;

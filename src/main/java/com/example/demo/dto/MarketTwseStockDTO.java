@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MarketTwseStockDTO {
 
-    private String stock_id;           // 股票代碼
+    private String stockId;           // 股票代碼
     private String date;               // 日期
     private String time;               // 時間（FinMind 無提供，可留空）
     private BigDecimal open;               // 開盤價
@@ -42,11 +42,11 @@ public class MarketTwseStockDTO {
 
 
     public String getStock_id() {
-        return stock_id;
+        return stockId;
     }
 
-    public void setStock_id(String stock_id) {
-        this.stock_id = stock_id;
+    public void setStock_id(String stockId) {
+        this.stockId = stockId;
     }
 
     public String getDate() {

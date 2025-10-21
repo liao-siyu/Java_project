@@ -7,6 +7,8 @@ import java.util.List;
 
 @Repository
 public interface RealizedProfitRepository extends JpaRepository<RealizedProfit, Long> {
-    List<RealizedProfit> findByAccountId(Long accountId);
-    List<RealizedProfit> findByAccountIdAndSymbol(Long accountId, String symbol);
+	
+	// 根據 accountId 查找所有 RealizedProfit 記錄
+	//SQL: SELECT * FROM realized_profits WHERE account_id = ?
+    List<RealizedProfit> findByAccountId(Long accountId);	
 }

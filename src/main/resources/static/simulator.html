@@ -367,9 +367,10 @@
 		}
 
 		// 頁面加載完成後自動執行
+		// 載入時自動抓取資料
 		document.addEventListener('DOMContentLoaded', function () {
-			loadAccountOverview();
-		    startAccountRefresh();
+			loadAccountOverview();		// 獲取帳戶概覽信息
+		    startAccountRefresh();		// 定時刷新帳戶概覽信息
 
 			// 如果當前在交易頁面，顯示委託狀態
 			if (window.location.hash === '#trade') {
@@ -388,16 +389,16 @@
 		        
 		        // 並行獲取現金餘額和持倉數據
 		        const [balanceRes, positionsRes] = await Promise.all([
-		            fetch(`/api/account-overview/${userId}`),
-		            fetch(`/api/trade/positions/${userId}`)
+		            fetch(`/api/account-overview/${userId}`),	// 帳戶資訊（名稱、現金）傳送給後端
+		            fetch(`/api/trade/positions/${userId}`)		// 持倉列表（拿來算證券資產）傳送給後端
 		        ]);
 
 		        if (!balanceRes.ok || !positionsRes.ok) {
 		            throw new Error('獲取帳戶信息失敗');
 		        }
 
-		        const balanceData = await balanceRes.json();
-		        const positionsData = await positionsRes.json();
+		        const balanceData = await balanceRes.json();	// 獲取AccountOverviewDTO
+		        const positionsData = await positionsRes.json();	// 獲取PositionDTO列表
 
 		        // 計算證券資產總值
 		        let stockAssets = 0;
@@ -408,10 +409,10 @@
 		        }
 
 		        // 更新頁面數據
-		        document.getElementById('account-name').textContent = balanceData.accountName;
-		        document.getElementById('account-cash').textContent = formatCurrency(balanceData.balance);
-		        document.getElementById('account-stock').textContent = formatCurrency(stockAssets);
-		        document.getElementById('account-total').textContent = formatCurrency(balanceData.balance + stockAssets);
+		        document.getElementById('account-name').textContent = balanceData.accountName;	//對應AccountOverviewDTO
+		        document.getElementById('account-cash').textContent = formatCurrency(balanceData.balance);	//對應AccountOverviewDTO
+		        document.getElementById('account-stock').textContent = formatCurrency(stockAssets);	//證券資產前端計算
+		        document.getElementById('account-total').textContent = formatCurrency(balanceData.balance + stockAssets);//證券資產前端計算
 
 		    } catch (error) {
 		        console.error('載入帳戶信息錯誤:', error);
@@ -440,7 +441,7 @@
 		        retryBtn.id = 'retry-button';
 		        retryBtn.textContent = '重試';
 		        retryBtn.className = 'bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm mt-2';
-		        retryBtn.onclick = loadAccountOverview;
+		        retryBtn.onclick = loadAccountOverview;		// 點選重置按鈕後重新載入資料
 
 		        const container = document.getElementById('account-total').parentElement;
 		        container.appendChild(retryBtn);
@@ -449,7 +450,8 @@
 		
 		// 添加定時刷新
 		let accountRefreshInterval;
-
+		
+		// 自動刷新帳戶
 		function startAccountRefresh() {
 		    accountRefreshInterval = setInterval(loadAccountOverview, 60000); // 每分鐘刷新
 		}

@@ -27,111 +27,98 @@ import com.example.demo.service.TradeService;
 @RestController
 @RequestMapping("/api/trade")
 public class TradeController {
-    
-    @Autowired
-    private TradeService tradeService;
-    private MarketTwseStockService marketTwseStockService;
-    
-    @Autowired
-    public TradeController(
-        TradeService tradeService,
-        MarketTwseStockService marketTwseStockService
-    ) {
-        this.tradeService = tradeService;
-        this.marketTwseStockService = marketTwseStockService;
-    }
-    
-    @PostMapping("/place-order")
-    public ResponseEntity<?> placeOrder(@RequestBody PlaceOrderRequest request) {
-        try {
-            Order order = tradeService.placeOrder(
-                request.getAccountId(),
-                request.getSymbol(),
-                request.getOrderType(),
-                request.getQuantity(),
-                request.getPrice()
-            );
-            
-            return ResponseEntity.ok(new ApiResponse(true, "訂單已提交", order));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
-        }
-    }
-    
-    @PostMapping("/cancel-order/{orderId}")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
-        try {
-            tradeService.cancelOrder(orderId);
-            return ResponseEntity.ok(new ApiResponse(true, "訂單已取消", null));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
-        }
-    }
-    
-    @GetMapping("/orders/{accountId}")
-    public ResponseEntity<?> getOrders(@PathVariable Long accountId, 
-                                     @RequestParam(required = false) String status) {
-        try {
-            List<Order> orders;
-            if (status != null) {
-                orders = tradeService.getOrdersByStatus(accountId, status);
-            } else {
-                orders = tradeService.getAllOrders(accountId);
-            }
-            return ResponseEntity.ok(new ApiResponse(true, "成功", orders));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
-        }
-    }
-    
-    @GetMapping("/positions/{accountId}")
-    public ResponseEntity<?> getPositions(@PathVariable Long accountId) {
-        try {
-            List<Position> positions = tradeService.getPositions(accountId);
-            
-            // 批量獲取當前價格 (使用現有服務)
-            List<String> symbols = positions.stream()
-                                          .map(Position::getSymbol)
-                                          .distinct()
-                                          .collect(Collectors.toList());
-                                          
-            Map<String, BigDecimal> currentPrices = marketTwseStockService.getCurrentPrices(symbols);
-            
-            List<PositionResponse> response = positions.stream().map(position -> {
-                PositionResponse dto = new PositionResponse();
-                dto.setSymbol(position.getSymbol());
-                dto.setQuantity(position.getQuantity());
-                dto.setAverageCost(position.getAverageCost());
-                
-                // 處理價格獲取失敗情況
-                BigDecimal currentPrice = currentPrices.get(position.getSymbol());
-                if (currentPrice == null) {
-                    throw new RuntimeException("無法獲取 " + position.getSymbol() + " 的當前價格");
-                }
-                
-                dto.setCurrentPrice(currentPrice);
-                dto.setUnrealizedProfit(
-                    currentPrice.subtract(position.getAverageCost())
-                              .multiply(new BigDecimal(position.getQuantity()))
-                );
-                return dto;
-            }).collect(Collectors.toList());
-            
-            return ResponseEntity.ok(new ApiResponse(true, "成功", response));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                   .body(new ApiResponse(false, e.getMessage(), null));
-        }
-    }
-    
-    @GetMapping("/realized-profit/{accountId}")
-    public ResponseEntity<?> getRealizedProfit(@PathVariable Long accountId) {
-        try {
-            List<RealizedProfit> profits = tradeService.getRealizedProfits(accountId);
-            System.out.println("Returning realized profits: " + profits);
-            return ResponseEntity.ok(new ApiResponse(true, "成功", profits));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
-        }
-    }
+	private final TradeService tradeService;
+	private final MarketTwseStockService marketTwseStockService;
+
+	public TradeController(TradeService tradeService, MarketTwseStockService marketTwseStockService) {
+		this.tradeService = tradeService;
+		this.marketTwseStockService = marketTwseStockService;
+	}
+
+	// 下單
+	@PostMapping("/place-order")
+	public ResponseEntity<?> placeOrder(@RequestBody PlaceOrderRequest request) {
+		try {
+			Order order = tradeService.placeOrder(request.getAccountId(), request.getSymbol(), request.getOrderType(),
+					request.getQuantity(), request.getPrice());		// 下單
+
+			return ResponseEntity.ok(new ApiResponse(true, "訂單已提交", order));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
+		}
+	}
+
+	@PostMapping("/cancel-order/{orderId}")
+	public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
+		try {
+			tradeService.cancelOrder(orderId);
+			return ResponseEntity.ok(new ApiResponse(true, "訂單已取消", null));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
+		}
+	}
+
+	@GetMapping("/orders/{accountId}")
+	public ResponseEntity<?> getOrders(@PathVariable Long accountId, @RequestParam(required = false) String status) {
+		try {
+			List<Order> orders;
+			if (status != null) {
+				orders = tradeService.getOrdersByStatus(accountId, status);
+			} else {
+				orders = tradeService.getAllOrders(accountId);
+			}
+			return ResponseEntity.ok(new ApiResponse(true, "成功", orders));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
+		}
+	}
+
+	@GetMapping("/positions/{userId}")
+	public ResponseEntity<?> getPositions(@PathVariable Long userId) {
+		try {
+			List<Position> positions = tradeService.getPositions(userId);
+
+			// 批量獲取當前價格 (使用現有服務)
+			// 整理所有持倉股票代碼
+			List<String> symbols = positions.stream().map(Position::getSymbol).distinct().collect(Collectors.toList());
+			
+			// 一次取回所有即時價
+			Map<String, BigDecimal> currentPrices = marketTwseStockService.getCurrentPrices(symbols);
+
+			// 組裝返回結果，組裝 DTO：PositionResponse
+			List<PositionResponse> response = positions.stream().map(position -> {
+				PositionResponse dto = new PositionResponse();
+				dto.setSymbol(position.getSymbol());
+				dto.setQuantity(position.getQuantity());
+				dto.setAverageCost(position.getAverageCost());
+
+				// 處理價格獲取失敗情況
+				BigDecimal currentPrice = currentPrices.get(position.getSymbol());
+				if (currentPrice == null) {
+					throw new RuntimeException("無法獲取 " + position.getSymbol() + " 的當前價格");
+				}
+
+				dto.setCurrentPrice(currentPrice);
+				dto.setUnrealizedProfit(currentPrice.subtract(position.getAverageCost())
+						.multiply(new BigDecimal(position.getQuantity())));
+				return dto;
+			}).collect(Collectors.toList());
+
+			return ResponseEntity.ok(new ApiResponse(true, "成功", response));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
+		}
+	}
+
+	// 查詢已實現盈虧
+	@GetMapping("/realized-profit/{accountId}")
+	public ResponseEntity<?> getRealizedProfit(@PathVariable Long accountId) {
+		try {
+			List<RealizedProfit> profits = tradeService.getRealizedProfits(accountId);	// 使用 TradeService 來獲取已實現盈虧記錄
+			System.out.println("Returning realized profits: " + profits);
+			return ResponseEntity.ok(new ApiResponse(true, "成功", profits));	
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
+		}
+	}
 }

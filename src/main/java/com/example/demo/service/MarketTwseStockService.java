@@ -39,8 +39,9 @@ public class MarketTwseStockService {
             validStockCodes = Set.of(); // Empty set as fallback
         }
     }
-
-    public boolean isValidStock(String symbol) {
+    
+    // 檢查股票代碼是否有效
+    public boolean isValidStock(String symbol) {	
         return validStockCodes != null && (validStockCodes.contains(symbol) || 
                 validStockCodes.contains("tse_" + symbol + ".tw"));
     }

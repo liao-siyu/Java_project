@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface PositionRepository extends JpaRepository<Position, Long> {
 	List<Position> findByAccountId(Long accountId);
 
-	Optional<Position> findByAccountIdAndSymbol(Long accountId, String symbol);
+	// 新增此方法以根據 accountId 和 symbol 查找持倉
+	Optional<Position> findByAccountIdAndSymbol(Long accountId, String symbol);		
 
 }

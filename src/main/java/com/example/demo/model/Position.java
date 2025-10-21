@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "positions")
-public class Position {
+public class Position {		// 代表使用者在某個股票的持倉狀況
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +24,9 @@ public class Position {
 
     @Column(name = "average_cost", precision = 38, scale = 2)
     private BigDecimal averageCost;
-
-    @Column(name = "frozen_quantity", nullable = false)
-    private int frozenQuantity;
+//
+//    @Column(name = "frozen_quantity", nullable = false)
+//    private int frozenQuantity;
 
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -64,12 +64,12 @@ public class Position {
 		this.averageCost = averageCost;
 	}
 
-	public int getFrozenQuantity() {
-		return frozenQuantity;
-	}
-
-	public void setFrozenQuantity(int frozenQuantity) {
-		this.frozenQuantity = frozenQuantity;
-	}
+//	public int getFrozenQuantity() {
+//		return frozenQuantity;
+//	}
+//
+//	public void setFrozenQuantity(int frozenQuantity) {
+//		this.frozenQuantity = frozenQuantity;
+//	}
 
 }

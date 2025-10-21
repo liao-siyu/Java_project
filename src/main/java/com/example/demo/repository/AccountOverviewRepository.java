@@ -14,7 +14,7 @@ import com.example.demo.model.AccountOverview;
 public interface AccountOverviewRepository extends JpaRepository<AccountOverview, Long> {
     
 	@Query("SELECT a FROM AccountOverview a WHERE a.userId = :userId AND a.isActive = true")
-    Optional<AccountOverview> findByUserId(@Param("userId") Long userId);
+    Optional<AccountOverview> findByUserId(@Param("userId") Long userId);	//根據使用者ID查找帳戶概覽
     
     @Query("SELECT a.balance FROM AccountOverview a WHERE a.userId = :userId AND a.isActive = true")
     Optional<BigDecimal> findBalanceByUserId(@Param("userId") Long userId);

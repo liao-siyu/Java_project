@@ -28,48 +28,47 @@ public class WatchlistController {
 
 	@Autowired
 	private WatchlistService watchlistService;
-	
-	 @Autowired
-	    private MarketTwseStockService marketTwseStockService;
- 
+
+	@Autowired
+	private MarketTwseStockService marketTwseStockService;
+
+	// 獲取觀察列表（僅股票代碼）
 	@GetMapping("/with-details")
 	public ResponseEntity<List<MarketTwseStockDTO>> getWatchlistWithDetails(@RequestParam Long userId) {
-	    try {
-	        List<Watchlist> watchlists = watchlistService.getWatchlistByUserId(userId);
-	        
-	        // 使用 parallelStream 加速處理
-	        List<MarketTwseStockDTO> result = watchlists.parallelStream()
-	            .map(watchlist -> {
-	                MarketTwseStockDTO dto = new MarketTwseStockDTO();
-	                dto.setStock_id(watchlist.getSymbol());
-	                
-	                try {
-	                    // 獲取即時數據
-	                    MarketTwseStockDTO stockData = marketTwseStockService.getRealtimeStock(watchlist.getSymbol());
-	                    
-	                    // 複製所有屬性 (使用 BeanUtils 或手動設置)
-	                    BeanUtils.copyProperties(stockData, dto);
-	                    
-	                } catch (Exception e) {
-	                    // 錯誤處理
-	                    dto.setStockName("資料獲取失敗");
-	                    dto.setOpen(null);
-	                    dto.setHigh(null);
-	                    // 設置其他字段為 null...
-	                }
-	                
-	                return dto;
-	            })
-	            .collect(Collectors.toList());
-	        
-	        return ResponseEntity.ok(result);
-	        
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	            .body(Collections.emptyList());
-	    }
+		try {
+			List<Watchlist> watchlists = watchlistService.getWatchlistByUserId(userId);
+
+			// 使用 parallelStream 加速處理
+			List<MarketTwseStockDTO> result = watchlists.parallelStream().map(watchlist -> {
+				MarketTwseStockDTO dto = new MarketTwseStockDTO();
+				dto.setStock_id(watchlist.getSymbol());
+
+				try {
+					// 獲取即時數據
+					MarketTwseStockDTO stockData = marketTwseStockService.getRealtimeStock(watchlist.getSymbol());
+
+					// 複製所有屬性 (使用 BeanUtils 或手動設置)
+					BeanUtils.copyProperties(stockData, dto);
+
+				} catch (Exception e) {
+					// 錯誤處理
+					dto.setStockName("資料獲取失敗");
+					dto.setOpen(null);
+					dto.setHigh(null);
+					// 設置其他字段為 null...
+				}
+
+				return dto;
+			}).collect(Collectors.toList());
+
+			return ResponseEntity.ok(result);
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+		}
 	}
 
+	// 加入觀察列表
 	@PostMapping
 	public ResponseEntity<?> addWatchlist(@RequestBody Map<String, String> body) {
 		try {
@@ -82,6 +81,7 @@ public class WatchlistController {
 		}
 	}
 
+	// 移除觀察列表
 	@DeleteMapping
 	public ResponseEntity<?> removeWatchlist(@RequestBody Map<String, String> body) {
 		try {
@@ -94,9 +94,7 @@ public class WatchlistController {
 
 			// 執行刪除
 			watchlistService.removeWatchlist(userId, symbol);
-			return ResponseEntity.ok(Map.of(
-	                "message", "已成功移除",
-	                "removedSymbol", symbol));
+			return ResponseEntity.ok(Map.of("message", "已成功移除", "removedSymbol", symbol));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("message", e.getMessage())); // 統一使用 message 欄位
 		}

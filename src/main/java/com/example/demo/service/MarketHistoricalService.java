@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.demo.dto.MarketHistoricalStockDTO;
@@ -17,8 +16,6 @@ import com.example.demo.dto.MarketHistoricalStockDTO;
 @Service
 public class MarketHistoricalService {
 
-	private final RestTemplate restTemplate = new RestTemplate();
-	
 	private final WebClient webClient = WebClient.create("https://api.finmindtrade.com");
 
 	private final String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yOSAxNTowOToyNSIsInVzZXJfaWQiOiJzaXl1MTIxM0BpY2xvdWQuY29tIiwiaXAiOiI2MS4yMTYuMTM5LjExNSJ9.j6gdd5r-yRK3HU7pcCI7eETnEgFwsX0eyaNEyNLHU4U";

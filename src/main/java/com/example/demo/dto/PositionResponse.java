@@ -11,10 +11,10 @@ public class PositionResponse {
     private BigDecimal unrealizedProfit;
     
  // 計算未實現損益
-    public BigDecimal calculateProfit() {
-        return currentPrice.subtract(averageCost)
-                           .multiply(new BigDecimal(quantity));
-    }
+//    public BigDecimal calculateProfit() {
+//        return currentPrice.subtract(averageCost)
+//                           .multiply(new BigDecimal(quantity));
+//    }
 
     public String getSymbol() {
         return symbol;
