@@ -61,6 +61,23 @@
 
 ---
 
+## � 系統畫面預覽
+
+此區展示 **StockMatch 股票模擬系統** 的主要操作介面，  
+包含帳戶管理、損益分析、模擬交易、觀察清單與股市行情等模組。
+
+---
+
+| 模組 | 畫面 1 | 畫面 2 |
+|------|--------|--------|
+|  **帳戶概覽**<br>顯示餘額、持倉、報酬率統計。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/account_overview.png?raw=true" width="420"> | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/reset_account.png?raw=true" width="420"> |
+|  **損益分析**<br>區分已實現與未實現損益。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/account_overview_realizedprofit.png?raw=true" width="420"> | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/account_overview_unrealizedprofit.png?raw=true" width="420"> |
+|  **模擬交易**<br>進行下單、撤單、查詢成交狀態。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/trade_service.png?raw=true" width="420"> | &nbsp; |
+|  **觀察清單**<br>追蹤感興趣的股票即時漲跌。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/watchlist.png?raw=true" width="420"> | &nbsp; |
+|  **股市行情**<br>瀏覽即時與歷史股價走勢。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/realtime_stock_prices.png?raw=true" width="420"> | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/historical_stock_prices.png?raw=true" width="420"> |
+
+---
+
 **作者**  
 廖偲妤 Siyu Liao  
 職訓局｜Java 工程師培訓  
