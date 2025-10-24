@@ -61,7 +61,7 @@
 
 ---
 
-## � 系統畫面預覽
+##  系統畫面預覽
 
 此區展示 **StockMatch 股票模擬系統** 的主要操作介面，  
 包含帳戶管理、損益分析、模擬交易、觀察清單與股市行情等模組。
@@ -70,11 +70,12 @@
 
 | 模組 | 畫面 1 | 畫面 2 |
 |------|--------|--------|
-|  **帳戶概覽**<br>顯示餘額、持倉、報酬率統計。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/account_overview.png?raw=true" width="420"> | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/reset_account.png?raw=true" width="420"> |
-|  **損益分析**<br>區分已實現與未實現損益。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/account_overview_realizedprofit.png?raw=true" width="420"> | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/account_overview_unrealizedprofit.png?raw=true" width="420"> |
-|  **模擬交易**<br>進行下單、撤單、查詢成交狀態。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/trade_service.png?raw=true" width="420"> | &nbsp; |
-|  **觀察清單**<br>追蹤感興趣的股票即時漲跌。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/watchlist.png?raw=true" width="420"> | &nbsp; |
-|  **股市行情**<br>瀏覽即時與歷史股價走勢。 | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/realtime_stock_prices.png?raw=true" width="420"> | <img src="https://github.com/liao-siyu/Java_project/blob/main/screenshots/historical_stock_prices.png?raw=true" width="420"> |
+|  **帳戶概覽**<br>顯示餘額、持倉、報酬率統計。<br>(提供重置帳戶功能） | <img width="420" alt="account_overview" src="https://github.com/user-attachments/assets/fd0db469-2481-4215-8d39-e1fec1212e70" />| <img width="420" alt="reset_account" src="https://github.com/user-attachments/assets/8deddac5-5bb5-40d5-9f73-8eb162d527b0" /> |
+|  **損益分析**<br>區分已實現與未實現損益。 | <img width="420" alt="account_overview_realizedprofit" src="https://github.com/user-attachments/assets/350045ec-1c7b-4dc7-8ba4-73c744f31a93" /> | <img width="420" alt="account_overview_unrealizedprofit" src="https://github.com/user-attachments/assets/62c08b91-2a76-4c78-8014-146f27bd4ed5" /> |
+|  **模擬交易**<br>進行下單、撤單、查詢成交狀態。 |<img width="420" alt="trade_service" src="https://github.com/user-attachments/assets/f7ab577a-4581-4c9e-984b-10a181053e0c" />| &nbsp; |
+|  **觀察清單**<br>追蹤感興趣的股票即時漲跌。 | <img width="420" alt="watchlist" src="https://github.com/user-attachments/assets/b4eb705e-e57c-4b70-a7b5-82b759b87236" /> | &nbsp; |
+|  **股市行情**<br>瀏覽即時與歷史股價走勢。 | <img width="420" alt="realtime_stock_prices" src="https://github.com/user-attachments/assets/37fd0184-b1a2-43c6-bd0e-0c7a0e8f7350" /> | <img width="420" alt="historical_stock_prices" src="https://github.com/user-attachments/assets/1e80c97b-cb7f-48c4-83fc-9050374db265" />
+|
 
 ---
 
